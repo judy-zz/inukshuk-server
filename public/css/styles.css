@@ -1,0 +1,8 @@
+@import url(/fonts/quicksand/stylesheet.css);
+body {
+  background: black;
+  color: white; }
+  body h1 {
+    font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  body #tweet {
+    font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif; }

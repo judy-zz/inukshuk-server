@@ -48,7 +48,7 @@ EventMachine.run do
 
   http = EventMachine::HttpRequest.new('https://stream.twitter.com/1/statuses/sample.json').get :head => {'authorization' => [CONFIG["username"], CONFIG["password"]]}
   http.stream do |chunk|
-    @tweet_parser << chunk
+    @tweet_parser << chunk.force_encoding('UTF-8')
   end
   http.errback { puts "oops" }
   http.disconnect { puts "oops, dropped connection?" }

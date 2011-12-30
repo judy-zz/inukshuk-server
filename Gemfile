@@ -10,8 +10,9 @@ gem "sinatra"
 gem "thin"
 
 gem "haml"
+gem "sass"
 gem "coffee-script"
 
 gem "guard"
+gem "guard-sass"
 gem "guard-coffeescript"
-gem 'guard-haml'
