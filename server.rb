@@ -9,6 +9,8 @@ require 'haml'
 require 'thin'
 require 'json'
 require 'net/telnet'
+require "active_support/core_ext"
+require 'profanity_filter'
 
 require './client.rb'
 
@@ -18,7 +20,7 @@ TIME_BETWEEN_CHANGING_COLORS = 0.01
 
 def tweet_received(tweet)
   if tweet[:text] && rand(100) <= 2.0
-    text = tweet[:text]
+    text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
     user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
     color = Arduino.random_rgb
     @tweet_queue.push(:message => {:user => user, :text => text, :color => color}.to_json, :color => color)

@@ -16,3 +16,6 @@ gem "coffee-script"
 gem "guard"
 gem "guard-sass"
 gem "guard-coffeescript"
+
+gem "profanity_filter"
+gem "activesupport"
