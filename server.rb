@@ -4,51 +4,86 @@ require "em-http-request"
 require "em-websocket"
 require "yajl"
 require "yaml"
-require "net/telnet"
 require 'sinatra/base'
 require 'haml'
-require './client.rb'
 require 'thin'
 require 'json'
+require 'net/telnet'
 
-CONFIG = YAML.load_file("config.yml")
+require './client.rb'
 
-# ARDUINO = Net::Telnet::new("Host" => "10.55.55.6", "Port" => 80)
+$CONFIG = YAML.load_file("config.yml")
+TIME_BETWEEN_CHANGING_TWEETS = 5
+TIME_BETWEEN_CHANGING_COLORS = 0.01
 
 def tweet_received(tweet)
-  text = tweet[:text] ? tweet[:text] : ""
-  user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
-  @channel.push({:user => user, :text => text}.to_json) if rand(100) <= 2.0
+  if tweet[:text] && rand(100) <= 2.0
+    text = tweet[:text]
+    user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
+    color = Arduino.random_rgb
+    @tweet_queue.push(:message => {:user => user, :text => text, :color => color}.to_json, :color => color)
+  end
 end
 
-def send_color(rgb)
-  # ARDUINO.puts(rgb)
-  puts "sending #{rgb}"
+
+class Arduino
+  @color = "#111111"
+  @connection = Net::Telnet::new("Host" => $CONFIG["arduino"]["host"], "Port" => $CONFIG["arduino"]["port"])
+
+  class << self
+    attr_accessor :color
+    attr_reader :connection
+
+    def send_color
+      puts "sending #{color}"
+      Arduino.connection.puts Arduino.color
+    end
+
+    def random_rgb
+      # sprintf("#%02x%02x%02x", rand(255), rand(255), rand(255))
+      ["#0000FF",
+       "#FF0000",
+       "#00FF00",
+       "#FFFF00",
+       "#FF00FF",
+       "#00FFFF",
+       "#FFFFFF"
+      ][rand(7)]
+    end
+  end
 end
+
 
 # Main run loop
 EventMachine.run do
-  @channel = EM::Channel.new
+  @tweet_queue = EM::Queue.new
+  @color_queue = EM::Queue.new
   @tweet_parser = Yajl::Parser.new(:symbolize_keys => true)
   @tweet_parser.on_parse_complete = method(:tweet_received)
 
-  EventMachine::WebSocket.start(:host => "0.0.0.0", :port => 8080) do |ws|
+  EventMachine::PeriodicTimer.new(TIME_BETWEEN_CHANGING_COLORS) do
+    Arduino.send_color
+  end
+
+  EventMachine::WebSocket.start(:host => "localhost", :port => 8080) do |ws|
     ws.onopen do
-      @channel.subscribe { |msg| ws.send msg.force_encoding('UTF-8') }
       puts "WebSocket connection open"
-      # publish message to the client
-      ws.send "Hello Client"
+    end
+    EventMachine::PeriodicTimer.new(TIME_BETWEEN_CHANGING_TWEETS) do
+      @tweet_queue.pop do |msg|
+        ws.send msg[:message].force_encoding('UTF-8')
+        Arduino.color = msg[:color]
+      end
     end
     ws.onmessage do |msg|
-      puts "Recieved message: #{msg}"
-      ws.send "Pong: #{msg}"
+      puts "Received message: #{msg}"
     end
     ws.onclose do
       puts "Connection closed"
     end
   end
 
-  http = EventMachine::HttpRequest.new('https://stream.twitter.com/1/statuses/sample.json').get :head => {'authorization' => [CONFIG["username"], CONFIG["password"]]}
+  http = EventMachine::HttpRequest.new('https://stream.twitter.com/1/statuses/sample.json').get :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]}
   http.stream do |chunk|
     @tweet_parser << chunk
   end

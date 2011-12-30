@@ -1,3 +1,8 @@
 ---
-username: Inukshuk2012
-password: kuhskuni
+twitter:
+  username: Inukshuk2012
+  password: kuhskuni
+
+arduino:
+  host: "192.168.15.15"
+  port: 21

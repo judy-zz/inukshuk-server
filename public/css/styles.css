@@ -7,8 +7,13 @@ body {
     font-family: "QuicksandBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 24px; }
   body .tweet {
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    -ms-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
     margin-bottom: 24px;
-    color: #888888; }
+    color: #555555; }
     body .tweet p {
       font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-size: 32px; }

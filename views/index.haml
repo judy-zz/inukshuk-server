@@ -8,7 +8,7 @@
 
     %script#tweet{:type => "text/html"}
       %blockquote.tweet{:cite => "http://www.imdb.com/character/ch0000672/quotes"}
-        %p {{ text }}
+        %p{:style => "color: {{ color }}"} {{ text }}
         %footer— {{ user }}
     %script{:type => "text/javascript", :src => "js/icanhaz.js"}
     %script{:type => "text/javascript", :src => "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
