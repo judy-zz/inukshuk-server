@@ -1,11 +1,14 @@
-connection = new WebSocket('ws://localhost:8080')
+$(document).ready ->
+  connection = new WebSocket('ws://localhost:8080')
 
-connection.onopen = ->
-  connection.send('Ping')
+  connection.onopen = ->
+    connection.send('Ping')
 
-connection.onerror = (error) ->
-  console.log('WebSocket Error ' + error)
+  connection.onerror = (error) ->
+    console.log('WebSocket Error ' + error)
 
-connection.onmessage = (e) ->
-  console.log('Server: ' + e.data)
+  connection.onmessage = (e) ->
+    tweet = JSON.parse(e.data)
+    console.log('Server: ' + tweet)
+    $('#tweets').prepend(ich.tweet(tweet))
 

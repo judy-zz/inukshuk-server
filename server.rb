@@ -6,17 +6,19 @@ require "yajl"
 require "yaml"
 require "net/telnet"
 require 'sinatra/base'
+require 'haml'
 require './client.rb'
 require 'thin'
+require 'json'
 
 CONFIG = YAML.load_file("config.yml")
 
 # ARDUINO = Net::Telnet::new("Host" => "10.55.55.6", "Port" => 80)
 
 def tweet_received(tweet)
-  text = tweet[:text]
+  text = tweet[:text] ? tweet[:text] : ""
   user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
-  @channel.push "#{user}: #{text}" if rand(100) <= 5.0
+  @channel.push({:user => user, :text => text}.to_json) if rand(100) <= 2.0
 end
 
 def send_color(rgb)
@@ -32,7 +34,7 @@ EventMachine.run do
 
   EventMachine::WebSocket.start(:host => "0.0.0.0", :port => 8080) do |ws|
     ws.onopen do
-      sid = @channel.subscribe { |msg| ws.send msg }
+      @channel.subscribe { |msg| ws.send msg.force_encoding('UTF-8') }
       puts "WebSocket connection open"
       # publish message to the client
       ws.send "Hello Client"
@@ -48,7 +50,7 @@ EventMachine.run do
 
   http = EventMachine::HttpRequest.new('https://stream.twitter.com/1/statuses/sample.json').get :head => {'authorization' => [CONFIG["username"], CONFIG["password"]]}
   http.stream do |chunk|
-    @tweet_parser << chunk.force_encoding('UTF-8')
+    @tweet_parser << chunk
   end
   http.errback { puts "oops" }
   http.disconnect { puts "oops, dropped connection?" }

@@ -1,8 +1,24 @@
 @import url(/fonts/quicksand/stylesheet.css);
 body {
   background: black;
-  color: white; }
+  color: white;
+  font-size: 16px; }
   body h1 {
-    font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif; }
-  body #tweet {
-    font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    font-family: "QuicksandBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 24px; }
+  body .tweet {
+    margin-bottom: 24px;
+    color: #888888; }
+    body .tweet p {
+      font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 32px; }
+    body .tweet footer {
+      font-family: "QuicksandBoldOblique", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      text-align: right;
+      font-size: 28px; }
+  body .tweet:first-child {
+    color: white; }
+    body .tweet:first-child p {
+      font-size: 72px; }
+    body .tweet:first-child footer {
+      font-size: 42px; }

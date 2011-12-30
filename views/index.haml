@@ -1,9 +1,15 @@
 !!! 5
 %html
   %head
-    %script{:type => "text/javascript", :src => "js/client.js"}
-    %script{:type => "text/javascript", :src => "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
     %link{:rel => "stylesheet", :href => "css/styles.css"}
   %body
     %h1 Inukshuk 2012
-    #tweet
+    #tweets
+
+    %script#tweet{:type => "text/html"}
+      %blockquote.tweet{:cite => "http://www.imdb.com/character/ch0000672/quotes"}
+        %p {{ text }}
+        %footer— {{ user }}
+    %script{:type => "text/javascript", :src => "js/icanhaz.js"}
+    %script{:type => "text/javascript", :src => "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
+    %script{:type => "text/javascript", :src => "js/client.js"}
