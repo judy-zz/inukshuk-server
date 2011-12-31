@@ -5,6 +5,7 @@ gem "eventmachine"
 gem "em-http-request"
 gem "em-websocket"
 gem "yajl-ruby"
+gem "oauth"
 
 gem "sinatra"
 gem "thin"

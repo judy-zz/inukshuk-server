@@ -1,12 +1,18 @@
 ---
 timing:
-  tweets: 30.0
-  backgrounds: 0.1
+  tweets: 5.0
+  backgrounds: 0.5
   colors: 0.1
 
 twitter:
   username: Inukshuk2012
   password: kuhskuni
+
+oauth:
+  consumer_key: ''
+  consumer_secret: ''
+  access_token: ''
+  access_token_secret: ''
 
 arduino:
   host: "192.168.15.15"

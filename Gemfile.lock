@@ -32,6 +32,7 @@ GEM
       sass (>= 3.1)
     haml (3.1.4)
     multi_json (1.0.4)
+    oauth (0.4.5)
     profanity_filter (0.1.1)
     rack (1.4.0)
     rack-protection (1.2.0)
@@ -62,6 +63,7 @@ DEPENDENCIES
   guard-coffeescript
   guard-sass
   haml
+  oauth
   profanity_filter
   sass
   sinatra

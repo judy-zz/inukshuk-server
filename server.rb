@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require "eventmachine"
 require "em-http-request"
-require "em-websocket"
+require 'oauth'
 require "yajl"
 require "yaml"
 require 'sinatra/base'
@@ -16,9 +16,7 @@ require './client.rb'
 
 $CONFIG = YAML.load_file("config.yml")
 
-require 'pry'
 @colors = {}
-
 [[0, 0, 0, "black",],
 [0, 0, 128, "navy", ],
 [0, 0, 139, "dark blue", "darkblue", "blue4"],
@@ -626,7 +624,7 @@ def tweet_received(tweet)
   if tweet[:text]
     text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
     user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
-    color, phrase = find_color(tweet[:text]) || ['#FFFFFF']
+    color, phrase = find_color(tweet[:text]) || ['']
     puts "Received tweet from #{user}, color #{color}: #{text}"
     @tweet_queue.push(
       :message => {:user => user, :text => text, :color => color, :type => "tweet"}.to_json,
@@ -637,7 +635,7 @@ def tweet_received(tweet)
 end
 
 def background_received(tweet)
-  if tweet[:text] && rand(100) < 10.0
+  if tweet[:text]
     text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
     user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
     @background_queue.push(:message => {:user => user, :text => text, :type => "background"}.to_json)
@@ -647,14 +645,14 @@ end
 
 class Arduino
   @color = "#111111"
-  # @connection = Net::Telnet::new("Host" => $CONFIG["arduino"]["host"], "Port" => $CONFIG["arduino"]["port"])
+  @connection = Net::Telnet::new("Host" => $CONFIG["arduino"]["host"], "Port" => $CONFIG["arduino"]["port"])
 
   class << self
     attr_accessor :color
     attr_reader :connection
 
     def send_color
-      # Arduino.connection.puts Arduino.color
+      Arduino.connection.puts Arduino.color
     end
 
     def random_rgb
@@ -708,13 +706,13 @@ EventMachine.run do
 
   background_connection = EventMachine::HttpRequest.new(
     'https://stream.twitter.com/1/statuses/filter.json').get(
-      :head => {'authorization' => ["creativeembassy", "passsss"]},
-      :query => {:track => "2012,happy new year,happy new years eve"}
+      :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]},
+      :query => {:track => "2012,happy new year,happy new years eve"} # General feed of 2012 greetings
     )
   background_connection.stream do |chunk|
     @background_parser << chunk
   end
-  background_connection.errback { puts "oops, error on background connection" }
+  background_connection.errback {|e| puts "oops, error on background connection: #{e.inspect}" }
   background_connection.disconnect { puts "oops, dropped background connection?" }
 
   tweet_connection = EventMachine::HttpRequest.new(
@@ -724,10 +722,10 @@ EventMachine.run do
       # :query => {:locations => "39.79,-80.35,41.92,-75.01"} # Pennsylvania
       :query => {:track => "innoblue,firstnight2012,first night 2012"} # Innoblue & First Night
     )
-  tweet_connection.stream do |chunk|
+  tweet_connection.callback do |chunk|
     @tweet_parser << chunk
   end
-  tweet_connection.errback { puts "oops, error on twitter connection" }
+  tweet_connection.errback {|e| puts "oops, error on twitter connection: #{e.inspect}" }
   tweet_connection.disconnect { puts "oops, dropped twitter connection?" }
 
   Client.run!({:port => 3000})

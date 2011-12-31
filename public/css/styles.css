@@ -26,7 +26,7 @@ body {
     -ms-transition: all 1s ease-in-out;
     transition: all 1s ease-in-out;
     margin-bottom: 24px;
-    color: #555555 !important; }
+    color: #555555; }
     #tweets .tweet p {
       font-family: "QuicksandLight", "Helvetica Neue", Helvetica, Arial, sans-serif;
       font-size: 32px; }
