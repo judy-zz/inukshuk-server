@@ -9,8 +9,9 @@ $(document).ready ->
 
   connection.onmessage = (e) ->
     tweet = JSON.parse(e.data)
-    console.log('Server: ' + tweet)
-    $('#tweets').prepend(ich.tweet(tweet))
-    # $('.tweet:first').show("slide", { direction: "down" }, 1000)
-    # $('#backgrounds').prepend(ich.background(tweet))
+    $('#tweets').prepend ich.tweet(tweet) if tweet.type == "tweet"
+    # $('.background:nth-child(5)').delete()
+    $('#backgrounds').prepend ich.background(tweet) if tweet.type == "background"
+    console.log(tweet) if tweet.type == "tweet"
+    # $('.background:nth-child(5)').delete()
 

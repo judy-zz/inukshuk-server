@@ -12,8 +12,11 @@
     return connection.onmessage = function(e) {
       var tweet;
       tweet = JSON.parse(e.data);
-      console.log('Server: ' + tweet);
-      return $('#tweets').prepend(ich.tweet(tweet));
+      if (tweet.type === "tweet") $('#tweets').prepend(ich.tweet(tweet));
+      if (tweet.type === "background") {
+        $('#backgrounds').prepend(ich.background(tweet));
+      }
+      if (tweet.type === "tweet") return console.log(tweet);
     };
   });
 

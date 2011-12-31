@@ -1,4 +1,9 @@
 ---
+timing:
+  tweets: 30.0
+  backgrounds: 0.1
+  colors: 0.1
+
 twitter:
   username: Inukshuk2012
   password: kuhskuni

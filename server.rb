@@ -15,14 +15,11 @@ require 'profanity_filter'
 require './client.rb'
 
 $CONFIG = YAML.load_file("config.yml")
-TIME_BETWEEN_CHANGING_TWEETS = 1.0
-TIME_BETWEEN_CHANGING_COLORS = 0.01
 
 require 'pry'
 @colors = {}
 
-[
-[0, 0, 0, "black",],
+[[0, 0, 0, "black",],
 [0, 0, 128, "navy", ],
 [0, 0, 139, "dark blue", "darkblue", "blue4"],
 [0, 0, 156, "new midnight blue"],
@@ -626,11 +623,24 @@ def find_color(string)
 end
 
 def tweet_received(tweet)
-  if tweet[:text] && rand(100) <= 300.0
+  if tweet[:text]
     text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
     user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
     color, phrase = find_color(tweet[:text]) || ['#FFFFFF']
-    @tweet_queue.push(:message => {:user => user, :text => text, :color => color}.to_json, :color => color, :phrase => phrase)
+    puts "Received tweet from #{user}, color #{color}: #{text}"
+    @tweet_queue.push(
+      :message => {:user => user, :text => text, :color => color, :type => "tweet"}.to_json,
+      :color => color,
+      :phrase => phrase
+    )
+  end
+end
+
+def background_received(tweet)
+  if tweet[:text] && rand(100) < 10.0
+    text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
+    user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
+    @background_queue.push(:message => {:user => user, :text => text, :type => "background"}.to_json)
   end
 end
 
@@ -664,11 +674,14 @@ end
 # Main run loop
 EventMachine.run do
   @tweet_queue = EM::Queue.new
+  @background_queue = EM::Queue.new
   @color_queue = EM::Queue.new
   @tweet_parser = Yajl::Parser.new(:symbolize_keys => true)
   @tweet_parser.on_parse_complete = method(:tweet_received)
+  @background_parser = Yajl::Parser.new(:symbolize_keys => true)
+  @background_parser.on_parse_complete = method(:background_received)
 
-  EventMachine::PeriodicTimer.new(TIME_BETWEEN_CHANGING_COLORS) do
+  EventMachine::PeriodicTimer.new($CONFIG["timing"]["colors"]) do
     Arduino.send_color
   end
 
@@ -676,11 +689,14 @@ EventMachine.run do
     ws.onopen do
       puts "WebSocket connection open"
     end
-    EventMachine::PeriodicTimer.new(TIME_BETWEEN_CHANGING_TWEETS) do
+    EventMachine::PeriodicTimer.new($CONFIG["timing"]["tweets"]) do
       @tweet_queue.pop do |msg|
         ws.send msg[:message].force_encoding('UTF-8')
         Arduino.color = msg[:color]
       end
+    end
+    EventMachine::PeriodicTimer.new($CONFIG["timing"]["backgrounds"]) do
+      @background_queue.pop {|msg| ws.send msg[:message].force_encoding('UTF-8')}
     end
     ws.onmessage do |msg|
       puts "Received message: #{msg}"
@@ -690,12 +706,29 @@ EventMachine.run do
     end
   end
 
-  http = EventMachine::HttpRequest.new('https://stream.twitter.com/1/statuses/sample.json').get :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]}
-  http.stream do |chunk|
+  background_connection = EventMachine::HttpRequest.new(
+    'https://stream.twitter.com/1/statuses/filter.json').get(
+      :head => {'authorization' => ["creativeembassy", "passsss"]},
+      :query => {:track => "2012,happy new year,happy new years eve"}
+    )
+  background_connection.stream do |chunk|
+    @background_parser << chunk
+  end
+  background_connection.errback { puts "oops, error on background connection" }
+  background_connection.disconnect { puts "oops, dropped background connection?" }
+
+  tweet_connection = EventMachine::HttpRequest.new(
+    'https://stream.twitter.com/1/statuses/filter.json').get(
+      :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]},
+      # :query => {:follow => "440496972"} # Follow Inukshuk2012
+      # :query => {:locations => "39.79,-80.35,41.92,-75.01"} # Pennsylvania
+      :query => {:track => "innoblue,firstnight2012,first night 2012"} # Innoblue & First Night
+    )
+  tweet_connection.stream do |chunk|
     @tweet_parser << chunk
   end
-  http.errback { puts "oops" }
-  http.disconnect { puts "oops, dropped connection?" }
+  tweet_connection.errback { puts "oops, error on twitter connection" }
+  tweet_connection.disconnect { puts "oops, dropped twitter connection?" }
 
   Client.run!({:port => 3000})
 end
