@@ -15,7 +15,7 @@ require 'profanity_filter'
 require './client.rb'
 
 $CONFIG = YAML.load_file("config.yml")
-TIME_BETWEEN_CHANGING_TWEETS = 5.0
+TIME_BETWEEN_CHANGING_TWEETS = 1.0
 TIME_BETWEEN_CHANGING_COLORS = 0.01
 
 require 'pry'
@@ -611,7 +611,7 @@ def find_color(string)
   potentials = {}
   @colors.each do |key, value|
     if ! string.index(key).nil? &&
-      (string[string.index(key) - 1] == " " || string[string.index(key) - 1].nil? ) && # character before phrase is empty, OR
+      (string[string.index(key) - 1] =~ /\W/ || string[string.index(key) - 1].nil? ) && # character before phrase is empty, OR
       (string[string.index(key) + key.length] =~ /\W/ || string[string.index(key) + key.length].nil? ) # character after phrase is non-word character
       potentials[key] = value
     end
@@ -626,13 +626,11 @@ def find_color(string)
 end
 
 def tweet_received(tweet)
-  if tweet[:text] && rand(100) <= 50.0
+  if tweet[:text] && rand(100) <= 300.0
     text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
     user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
     color, phrase = find_color(tweet[:text]) || ['#FFFFFF']
-    if phrase
-      @tweet_queue.push(:message => {:user => user, :text => text, :color => color}.to_json, :color => color, :phrase => phrase)
-    end
+    @tweet_queue.push(:message => {:user => user, :text => text, :color => color}.to_json, :color => color, :phrase => phrase)
   end
 end
 

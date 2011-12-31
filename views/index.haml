@@ -2,14 +2,19 @@
 %html
   %head
     %link{:rel => "stylesheet", :href => "css/styles.css"}
+    %title Innoblue 2012
   %body
-    %h1 Inukshuk 2012
+    %h1<
+      Innoblue
+      %span{:style =>"color:#15A4FF;"}2012
     #tweets
-
+    #backgrounds
     %script#tweet{:type => "text/html"}
-      %blockquote.tweet{:cite => "http://www.imdb.com/character/ch0000672/quotes"}
+      %blockquote.tweet
         %p{:style => "color: {{ color }}"} {{ text }}
         %footer— {{ user }}
+    %script#background{:type => "text/html"}
+      %span.background {{ text }} — {{ user }}
     %script{:type => "text/javascript", :src => "js/icanhaz.js"}
     %script{:type => "text/javascript", :src => "https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
     %script{:type => "text/javascript", :src => "js/client.js"}

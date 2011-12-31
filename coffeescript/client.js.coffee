@@ -11,4 +11,6 @@ $(document).ready ->
     tweet = JSON.parse(e.data)
     console.log('Server: ' + tweet)
     $('#tweets').prepend(ich.tweet(tweet))
+    # $('.tweet:first').show("slide", { direction: "down" }, 1000)
+    # $('#backgrounds').prepend(ich.background(tweet))
 
