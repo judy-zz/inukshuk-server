@@ -17,7 +17,7 @@ class Arduino
   end
 
   def color
-    @color || psuedo_random_rgb
+    @color || pseudo_random_rgb
   end
 
   private
@@ -26,7 +26,7 @@ class Arduino
     sprintf("#%02x%02x%02x", rand(255), rand(255), rand(255))
   end
 
-  def psuedo_random_rgb
+  def pseudo_random_rgb
     ["#0000FF",
      "#FF0000",
      "#00FF00",
