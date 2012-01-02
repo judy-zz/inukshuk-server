@@ -14,6 +14,7 @@ require "active_support/core_ext"
 require 'profanity_filter'
 
 require './client.rb'
+require './arduino.rb'
 
 $CONFIG = YAML.load_file("config.yml")
 
@@ -644,34 +645,10 @@ def background_received(tweet)
 end
 
 
-class Arduino
-  @color = "#111111"
-  @connection = Net::Telnet::new("Host" => $CONFIG["arduino"]["host"], "Port" => $CONFIG["arduino"]["port"])
-
-  class << self
-    attr_accessor :color
-    attr_reader :connection
-
-    def send_color
-      Arduino.connection.puts Arduino.color
-    end
-
-    def random_rgb
-      # sprintf("#%02x%02x%02x", rand(255), rand(255), rand(255))
-      ["#0000FF",
-       "#FF0000",
-       "#00FF00",
-       "#FFFF00",
-       "#FF00FF",
-       "#00FFFF",
-       "#FFFFFF"
-      ][rand(7)]
-    end
-  end
-end
 
 # Main run loop
 EventMachine.run do
+  @arduino = Arduino.new($CONFIG["arduino"]["host"], $CONFIG["arduino"]["port"])
   @tweet_queue = EM::Queue.new
   @background_queue = EM::Queue.new
   @color_queue = EM::Queue.new
@@ -681,7 +658,7 @@ EventMachine.run do
   @background_parser.on_parse_complete = method(:background_received)
 
   EventMachine::PeriodicTimer.new($CONFIG["timing"]["colors"]) do
-    Arduino.send_color
+    @arduino.send_color
   end
 
   EventMachine::WebSocket.start(:host => "localhost", :port => 8080) do |ws|
@@ -691,7 +668,7 @@ EventMachine.run do
     EventMachine::PeriodicTimer.new($CONFIG["timing"]["tweets"]) do
       @tweet_queue.pop do |msg|
         ws.send msg[:message].force_encoding('UTF-8')
-        Arduino.color = msg[:color]
+        @arduino.color = msg[:color]
       end
     end
     EventMachine::PeriodicTimer.new($CONFIG["timing"]["backgrounds"]) do
