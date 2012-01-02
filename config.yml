@@ -9,10 +9,10 @@ twitter:
   password: kuhskuni
 
 oauth:
-  consumer_key: ''
-  consumer_secret: ''
-  access_token: ''
-  access_token_secret: ''
+  consumer_key: 'I65uR1aubSVsDh2qDS75g'
+  consumer_secret: 'jUJtNVOzng3DCaGmjYsp4yKcVAQ8wfN80SY6gUUOoM'
+  access_token: '7892772-wryXcKce7x36EJvHrDLdQnrxVJqB1v53U0AVmQJIeQ'
+  access_token_secret: 'KbsZ3Yuo1SU9EjmUWTq4LPIwqEi2AnHsEBIf9yJUJ0E'
 
 arduino:
   host: "192.168.15.15"
