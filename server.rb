@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require "eventmachine"
 require "em-http-request"
+require "em-websocket"
 require 'oauth'
 require "yajl"
 require "yaml"
