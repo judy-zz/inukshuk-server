@@ -2,7 +2,6 @@
 timing:
   tweets: 5.0
   backgrounds: 0.5
-  colors: 0.1
 
 twitter:
   username: Inukshuk2012
