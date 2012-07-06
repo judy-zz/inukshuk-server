@@ -2,9 +2,9 @@
 
   $(document).ready(function() {
     var connection;
-    connection = new WebSocket('ws://localhost:8080');
+    connection = new WebSocket('ws://localhost:7000');
     connection.onopen = function() {
-      return connection.send('Ping');
+      return true;
     };
     connection.onerror = function(error) {
       return console.log('WebSocket Error ' + error);

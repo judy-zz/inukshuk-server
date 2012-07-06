@@ -2,7 +2,7 @@ $(document).ready ->
   connection = new WebSocket('ws://localhost:8080')
 
   connection.onopen = ->
-    connection.send('Ping')
+    # connection.send('Ping')
 
   connection.onerror = (error) ->
     console.log('WebSocket Error ' + error)

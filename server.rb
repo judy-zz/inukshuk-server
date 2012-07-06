@@ -14,7 +14,6 @@ require 'json'
 require 'net/telnet'
 require "active_support/core_ext"
 require 'profanity_filter'
-require 'pry'
 
 require 'client'
 require 'arduino'
@@ -39,7 +38,7 @@ def tweet_received(tweet)
 end
 
 def background_received(tweet)
-  print "B"
+  print "_"
   if tweet[:text]
     text = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
     user = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
@@ -56,14 +55,14 @@ EventMachine.run do
   @tweet_parser = Yajl::Parser.new(:symbolize_keys => true)
   @tweet_parser.on_parse_complete = method(:tweet_received)
 
-  EventMachine::WebSocket.start(:host => "localhost", :port => 8080) do |ws|
+  EventMachine::WebSocket.start(:host => "localhost", :port => 7000) do |ws|
     ws.onopen do
       puts "WS: Connection Open"
     end
     EventMachine::PeriodicTimer.new($CONFIG["timing"]["tweets"]) do
       @tweet_queue.pop do |msg|
         ws.send msg[:message].force_encoding('UTF-8')
-        @arduino.color = msg[:color] || 
+        @arduino.color = msg[:color]
         @arduino.send_color
       end
     end
@@ -84,15 +83,15 @@ EventMachine.run do
 
   background_stream = twitter_connection.get(
       :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]},
-      :query => {:track => "haha"}
+      :query => {:track => $CONFIG["terms"]["backgrounds"]}
     )
   background_stream.stream {|chunk| @background_parser << chunk }
   background_stream.errback {|e| puts "BC: Error: #{e.inspect}" }
   background_stream.disconnect { puts "BC: Dropped" }
 
   tweet_stream = twitter_connection.get(
-      :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]},
-      :query => {:track => "color"}
+      :head => {'authorization' => [$CONFIG["twitter2"]["username"], $CONFIG["twitter2"]["password"]]},
+      :query => {:track => $CONFIG["terms"]["tweets"]}
     )
   tweet_stream.stream {|chunk| @tweet_parser << chunk }
   tweet_stream.errback {|e| puts "TC: Error: #{e.inspect}" }

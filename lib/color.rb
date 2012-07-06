@@ -2,17 +2,16 @@ class Color
   @@colors = {}
   [[0, 0, 0, "black",],
   [0, 0, 128, "navy", ],
-  [0, 0, 139, "dark blue", "darkblue", "blue4"],
+  [0, 0, 139, "dark blue", "darkblue"],
   [0, 0, 156, "new midnight blue"],
-  [0, 0, 205, "medium blue", "mediumblue", "medium blue", "blue3"],
-  [0, 0, 238, "blue2"],
-  [0, 0, 255, "blue", "blue", "blue", "blue1"],
+  [0, 0, 205, "medium blue", "mediumblue", "medium blue"],
+  [0, 0, 255, "blue",],
   [0, 34, 102, "royalblue5"],
   [0, 100, 0, "dark green", "darkgreen", "dark green", "darkgreen"],
   [0, 104, 139, "deep sky blue"],
   [0, 127, 255, "slate blue"],
-  [0, 128, 0, "green", "green", "green"],
-  [0, 128, 128, "teal", "teal", "teal"],
+  [0, 255, 0, "green", "green", "green"],
+  [0, 255, 255, "teal", "teal", "teal"],
   [0, 134, 139, "turquoise4"],
   [0, 139, 0, "green4"],
   [0, 139, 69, "springgreen4"],
@@ -597,7 +596,7 @@ class Color
     if potentials.any?
       puts potentials.keys
       longest_key = potentials.keys.sort_by {|key| key.length }.last
-      return potentials[longest_key], potentials
+      return potentials[longest_key]
     else
       return nil
     end

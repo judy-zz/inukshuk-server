@@ -6,7 +6,9 @@ class Arduino
   end
 
   def send_color
-    @connection.puts @color
+    if ! @color.blank? && @color.class.method_defined?(:to_s)
+      @connection.puts @color.to_s
+    end
   rescue Errno::EPIPE
     mock_connection
   end

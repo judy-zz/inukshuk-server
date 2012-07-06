@@ -31,6 +31,7 @@ GEM
       guard (>= 0.4.0)
       sass (>= 3.1)
     haml (3.1.4)
+    i18n (0.6.0)
     multi_json (1.0.4)
     oauth (0.4.5)
     profanity_filter (0.1.1)
@@ -63,6 +64,7 @@ DEPENDENCIES
   guard-coffeescript
   guard-sass
   haml
+  i18n
   oauth
   profanity_filter
   sass

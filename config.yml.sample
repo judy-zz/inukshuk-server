@@ -1,0 +1,26 @@
+---
+timing:
+  tweets: 10.0
+  backgrounds: 0.5
+
+terms:
+  tweets: color
+  backgrounds: haha
+
+twitter:
+  username: username
+  password: password
+
+twitter2:
+  username: username
+  password: password
+
+oauth:
+  consumer_key: 'key'
+  consumer_secret: 'secret'
+  access_token: 'token'
+  access_token_secret: 'token_secret'
+
+arduino:
+  host: "192.168.15.15"
+  port: 21

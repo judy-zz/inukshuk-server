@@ -6,6 +6,7 @@ gem "em-http-request"
 gem "em-websocket"
 gem "yajl-ruby"
 gem "oauth"
+gem "i18n"
 
 gem "sinatra"
 gem "thin"
