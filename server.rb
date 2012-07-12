@@ -25,15 +25,18 @@ $CONFIG = YAML.load_file("config.yml")
 
 def tweet_received(tweet)
   print "T"
-  if tweet[:text]
-    text  = ProfanityFilter::Base.clean(tweet[:text], 'hollow')
-    user  = (! tweet[:user].nil?) ? tweet[:user][:screen_name] : "???"
-    color = Color.find_color(tweet[:text]) || Color.pseudo_random_rgb
-    # puts "Received tweet from #{user}, color #{color}: #{text}"
-    @tweet_queue.push(
-      :message => {:user => user, :text => text, :color => color, :type => "tweet"}.to_json,
-      :color => color
-    )
+  puts tweet.inspect
+  if tweet[:twitter]
+    if tweet[:twitter][:text]
+      text  = ProfanityFilter::Base.clean(tweet[:twitter][:text], 'hollow')
+      user  = (! tweet[:twitter][:user].nil?) ? tweet[:twitter][:user][:screen_name] : "Anonymous"
+      color = Color.find_color(tweet[:twitter][:text]) || Color.pseudo_random_rgb
+      # puts "Received tweet from #{user}, color #{color}: #{text}"
+      @tweet_queue.push(
+        :message => {:user => user, :text => text, :color => color, :type => "tweet"}.to_json,
+        :color => color
+      )
+    end
   end
 end
 
@@ -80,6 +83,7 @@ EventMachine.run do
   end
 
   twitter_connection = EventMachine::HttpRequest.new('https://stream.twitter.com/1/statuses/filter.json')
+  datasift_connection = EventMachine::HttpRequest.new('http://stream.datasift.com/5ddff51e351edca72c2b42224691f82a')
 
   background_stream = twitter_connection.get(
       :head => {'authorization' => [$CONFIG["twitter"]["username"], $CONFIG["twitter"]["password"]]},
@@ -89,10 +93,13 @@ EventMachine.run do
   background_stream.errback {|e| puts "BC: Error: #{e.inspect}" }
   background_stream.disconnect { puts "BC: Dropped" }
 
-  tweet_stream = twitter_connection.get(
-      :head => {'authorization' => [$CONFIG["twitter2"]["username"], $CONFIG["twitter2"]["password"]]},
-      :query => {:track => $CONFIG["terms"]["tweets"]}
-    )
+  tweet_stream = datasift_connection.get(
+      :head => {
+        'Authorization' => [$CONFIG["datasift"]["username"], $CONFIG["datasift"]["api_key"]].join(":"),
+        'Connection' => "Keep-Alive"
+      },
+      :timeout => 0
+  )
   tweet_stream.stream {|chunk| @tweet_parser << chunk }
   tweet_stream.errback {|e| puts "TC: Error: #{e.inspect}" }
   tweet_stream.disconnect { puts "TC: Dropped" }
