@@ -37,8 +37,7 @@ body {
       font-family: "Gotham Book";
       font-size: 32px; }
     #tweets .tweet footer {
-      font-family: "Gotham BoldItalic";
-      font-style: italic;
+      font-family: "Gotham Bold";
       text-align: right;
       font-size: 28px;
       color: #555555; }
@@ -50,5 +49,5 @@ body {
 .background {
   font-family: "Gotham Light";
   font-size: 24px;
-  color: #444444;
+  color: #373737;
   display: block; }
