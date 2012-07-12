@@ -97,5 +97,5 @@ EventMachine.run do
   tweet_stream.errback {|e| puts "TC: Error: #{e.inspect}" }
   tweet_stream.disconnect { puts "TC: Dropped" }
 
-  Client.run!({:port => 3000})
+  Client.run!({:port => $CONFIG["server"]["port"]})
 end

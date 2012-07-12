@@ -1,7 +1,7 @@
 class Arduino
   def initialize(host, port)
     @connection = Net::Telnet::new("Host" => host, "Port" => port)
-  rescue
+  rescue Errno::EPIPE
     mock_connection
   end
 
